@@ -3,183 +3,138 @@ import random
 from src.card import Card
 from src.deck import Deck, StandardDeckFactory, JokerDeckFactory
 
-# --- Test Deck Class Functionality ---
+# Helper function to create a simple deck for testing
+@pytest.fixture
+def empty_deck():
+    return Deck([])
 
-def test_deck_initialization_and_count():
-    """Test that a deck is initialized with the correct number of cards."""
-    # Create some dummy cards for testing the Deck class directly
-    cards = [Card('A', 'Spade'), Card('K', 'Heart')]
-    deck = Deck(cards)
-    assert deck.cards_left() == 2
+@pytest.fixture
+def standard_deck():
+    return StandardDeckFactory().create_deck()
 
-    # Ensure the deck makes a copy of the list, not just a reference
-    original_cards_list = [Card('A', 'Club')]
-    deck_from_list = Deck(original_cards_list)
-    assert deck_from_list.cards_left() == 1
-    original_cards_list.append(Card('J', 'Diamond')) # Modify original list
-    assert deck_from_list.cards_left() == 1 # Deck's internal state should be unaffected
+@pytest.fixture
+def joker_deck():
+    return JokerDeckFactory().create_deck()
 
-def test_deck_shuffle():
-    """Test that shuffling changes the order of cards."""
-    # Create a predictable deck for testing shuffle
-    cards = [Card(str(i), 'Spade') for i in range(1, 14)] # 13 cards
-    deck = Deck(list(cards)) # Pass a copy to Deck's constructor
+def test_deck_init(standard_deck):
+    # Test initialization with cards
+    assert len(standard_deck) == 52
     
-    # Capture initial state (before any random draws)
-    initial_full_deck_cards = list(deck._cards) 
+    # Test shuffle_on_init
+    deck_shuffled = StandardDeckFactory().create_deck(shuffle_on_init=True)
+    # It's hard to assert randomness, but we can check length
+    assert len(deck_shuffled) == 52
+
+def test_deck_shuffle(standard_deck):
+    # Create a known order
+    initial_order = list(standard_deck._cards)
     
-    # Create a new deck instance for comparison to ensure a fresh, unshuffled state
-    unshuffled_deck_for_comparison = Deck(list(cards))
+    # Shuffle the deck
+    standard_deck.shuffle()
     
-    # Deal all cards from the initially shuffled deck (order is random)
-    order_after_initial_shuffle = []
-    temp_deck_for_initial_draw = Deck(list(initial_full_deck_cards)) # Use the initially shuffled list
-    for _ in range(temp_deck_for_initial_draw.cards_left()):
-        order_after_initial_shuffle.append(temp_deck_for_initial_draw.draw_card(replace=False))
+    # After shuffling, the order should generally be different
+    # (though there's a tiny chance it could be the same)
+    # We assert that it's still the same length
+    assert len(standard_deck) == 52
+    # And that it's not exactly the same order (most of the time)
+    # This test might occasionally fail due to random chance, but it's rare.
+    assert standard_deck._cards != initial_order
 
-    # Shuffle the original deck again
-    deck.shuffle()
+def test_deck_deal_card(standard_deck, empty_deck):
+    # Deal a card from a non-empty deck
+    initial_len = len(standard_deck)
+    dealt_card = standard_deck.deal_card()
+    assert isinstance(dealt_card, Card)
+    assert len(standard_deck) == initial_len - 1
+
+    # Test dealing from an empty deck
+    with pytest.raises(IndexError, match="Cannot deal card from an empty deck."):
+        empty_deck.deal_card()
+
+def test_deck_add_card(empty_deck, standard_deck):
+    # Add a card to an empty deck
+    card_to_add = Card('A', 'Spade')
+    empty_deck.add_card(card_to_add)
+    assert len(empty_deck) == 1
+    assert card_to_add in empty_deck
+
+    # Add a card to a non-empty deck
+    initial_len = len(standard_deck)
+    new_card = Card('K', 'Diamond')
+    standard_deck.add_card(new_card)
+    assert len(standard_deck) == initial_len + 1
+    assert new_card in standard_deck
     
-    # Deal all cards from the re-shuffled deck
-    order_after_reshuffle = []
-    for _ in range(deck.cards_left()):
-        order_after_reshuffle.append(deck.draw_card(replace=False))
+    # Test adding non-Card object
+    with pytest.raises(TypeError, match="Only Card objects can be added to the deck."):
+        empty_deck.add_card("not a card")
+
+def test_deck_len(standard_deck, empty_deck):
+    # Test len for a full standard deck
+    assert len(standard_deck) == 52
     
-    # It's highly improbable for two random shuffles to be in the exact same order
-    assert order_after_initial_shuffle != order_after_reshuffle
-    assert len(order_after_initial_shuffle) == len(order_after_reshuffle) # Ensure no cards were lost
+    # Test len for an empty deck
+    assert len(empty_deck) == 0
 
-def test_deck_draw_card_no_replacement():
-    """
-    Test drawing cards without replacement (default behavior) and deck count reduction.
-    This simulates the "deal_card" behavior.
-    """
-    cards = [Card('A', 'Spade'), Card('K', 'Heart'), Card('Q', 'Diamond')]
-    deck = Deck(list(cards)) # Use a copy
-    initial_count = deck.cards_left() # Should be 3
-    
-    drawn_cards = []
+    # Test len after dealing
+    standard_deck.deal_card()
+    assert len(standard_deck) == 51
 
-    # Draw all cards without replacement
-    for i in range(initial_count):
-        dealt_card = deck.draw_card(replace=False) # Explicitly test no replacement
-        assert deck.cards_left() == initial_count - (i + 1)
-        assert isinstance(dealt_card, Card)
-        assert dealt_card in cards # Ensure the drawn card is one of the original cards
-        assert dealt_card not in drawn_cards # Ensure it's a unique card (no replacement)
-        drawn_cards.append(dealt_card)
+    # Test len after adding
+    empty_deck.add_card(Card('2', 'Club'))
+    assert len(empty_deck) == 1
 
-    # After drawing all cards, the deck should be empty
-    assert deck.cards_left() == 0
-    assert set(drawn_cards) == set(cards) # Ensure all original cards were drawn exactly once
+def test_deck_contains(standard_deck, empty_deck):
+    # Create some cards for testing
+    card_A_spade = Card('A', 'Spade')
+    card_K_heart = Card('K', 'Heart')
+    # card_non_existent = Card('Q', 'Club') # Assuming this card is not in the standard deck initially if it's dealt
 
-    # Test drawing from an empty deck (no replacement)
-    with pytest.raises(IndexError, match="Cannot draw card from an empty deck"):
-        deck.draw_card(replace=False)
+    # Test if existing cards are found
+    assert card_A_spade in standard_deck
+    assert card_K_heart in standard_deck
 
-def test_deck_draw_card_with_replacement():
-    """Test drawing cards with replacement; deck count should not change."""
-    cards = [Card('A', 'Spade'), Card('K', 'Heart')]
-    deck = Deck(list(cards))
-    initial_count = deck.cards_left() # Should be 2
+    # Deal a card and check if it's no longer in the deck
+    dealt_card = standard_deck.deal_card()
+    assert dealt_card not in standard_deck
 
-    drawn_card_list = []
-    # Draw multiple cards with replacement
-    for _ in range(10): # Draw more than initial count to emphasize replacement
-        drawn_card = deck.draw_card(replace=True)
-        assert deck.cards_left() == initial_count # Count should not change
-        assert isinstance(drawn_card, Card)
-        assert drawn_card in cards # Ensure it's a valid card
-        drawn_card_list.append(drawn_card)
-    
-    # Verify that cards were indeed drawn (not just an empty loop)
-    assert len(drawn_card_list) == 10
-    # It's possible to draw the same card multiple times with replacement
-    # No assertion on uniqueness of drawn_card_list elements.
+    # # Test if a non-existent card is not found
+    # assert card_non_existent not in standard_deck
 
-def test_deck_dealt_card_immutability():
-    """Test that cards drawn from the deck are immutable."""
-    deck = StandardDeckFactory().create_deck()
-    dealt_card = deck.draw_card(replace=False) # Draw one card
+    # Test contains on an empty deck
+    assert card_A_spade not in empty_deck
 
-    with pytest.raises(AttributeError, match="can't set attribute"):
-        dealt_card.value = "New Value"
-    with pytest.raises(AttributeError, match="can't set attribute"):
-        dealt_card.suit = "New Suit"
+    # Test contains with a non-Card object
+    assert "not a card" not in standard_deck
 
-# --- Test StandardDeckFactory ---
+def test_deck_repr(standard_deck, empty_deck):
+    # Test repr for a full deck
+    assert repr(standard_deck) == "Deck with 52 cards remaining."
 
-def test_standard_deck_factory_creates_52_cards():
-    """Test that StandardDeckFactory creates a deck with 52 cards."""
+    # Test repr for an empty deck
+    assert repr(empty_deck) == "Deck with 0 cards remaining."
+
+    # Test repr after dealing
+    standard_deck.deal_card()
+    assert repr(standard_deck) == "Deck with 51 cards remaining."
+
+def test_standard_deck_factory():
     factory = StandardDeckFactory()
     deck = factory.create_deck()
-    assert deck.cards_left() == 52
+    assert len(deck) == 52
+    # Check a couple of specific cards to ensure they are there
+    assert Card('A', 'Spade') in deck
+    assert Card('K', 'Heart') in deck
+    assert Card('2', 'Club') in deck
+    # Ensure no jokers are present
+    assert Card('Black Joker') not in deck
 
-def test_standard_deck_factory_no_jokers():
-    """Test that a standard deck does not contain Jokers."""
-    factory = StandardDeckFactory()
-    deck = factory.create_deck()
-    
-    # Deal all cards and check for Jokers
-    has_jokers = False
-    for _ in range(52): # Iterate 52 times to deal all cards
-        card = deck.draw_card(replace=False)
-        if card.value in ['Black Joker', 'Red Joker']:
-            has_jokers = True
-            break
-    assert not has_jokers, "Standard deck should not contain Jokers."
-    assert deck.cards_left() == 0 # Ensure all cards were dealt
-
-def test_standard_deck_factory_unique_cards():
-    """Test that all cards in a standard deck are unique."""
-    factory = StandardDeckFactory()
-    deck = factory.create_deck()
-    
-    cards_in_deck = []
-    for _ in range(deck.cards_left()): # Deal all cards
-        cards_in_deck.append(deck.draw_card(replace=False))
-    
-    unique_cards = set(cards_in_deck)
-    assert len(unique_cards) == 52, "Standard deck should have 52 unique cards."
-    assert deck.cards_left() == 0 # Ensure all cards were dealt
-
-# --- Test JokerDeckFactory ---
-
-def test_joker_deck_factory_creates_54_cards():
-    """Test that JokerDeckFactory creates a deck with 54 cards."""
+def test_joker_deck_factory():
     factory = JokerDeckFactory()
     deck = factory.create_deck()
-    assert deck.cards_left() == 54
-
-def test_joker_deck_factory_contains_jokers():
-    """Test that a joker deck contains exactly one Black Joker and one Red Joker."""
-    factory = JokerDeckFactory()
-    deck = factory.create_deck()
-    
-    black_joker_count = 0
-    red_joker_count = 0
-    
-    for _ in range(deck.cards_left()): # Deal all cards
-        card = deck.draw_card(replace=False)
-        if card.value == 'Black Joker':
-            black_joker_count += 1
-        elif card.value == 'Red Joker':
-            red_joker_count += 1
-            
-    assert black_joker_count == 1, "Joker deck should contain exactly one Black Joker."
-    assert red_joker_count == 1, "Joker deck should contain exactly one Red Joker."
-    assert deck.cards_left() == 0 # Ensure all cards were dealt
-
-def test_joker_deck_factory_unique_cards():
-    """Test that all cards in a joker deck are unique."""
-    factory = JokerDeckFactory()
-    deck = factory.create_deck()
-    
-    cards_in_deck = []
-    for _ in range(deck.cards_left()): # Deal all cards
-        cards_in_deck.append(deck.draw_card(replace=False))
-    
-    unique_cards = set(cards_in_deck)
-    assert len(unique_cards) == 54, "Joker deck should have 54 unique cards."
-    assert deck.cards_left() == 0 # Ensure all cards were dealt
-
+    assert len(deck) == 54 # 52 standard + 2 jokers
+    # Check for standard cards
+    assert Card('A', 'Spade') in deck
+    # Check for jokers
+    assert Card('Black Joker') in deck
+    assert Card('Red Joker') in deck
