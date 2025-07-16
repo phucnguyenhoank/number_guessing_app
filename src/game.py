@@ -26,5 +26,5 @@ class Game:
                 print("Congratulations! You win the game!")
                 break
             elif self.points < 30:
-                print("Sorry, you lose the game!")
+                print("Sorry, you need more money!")
                 break

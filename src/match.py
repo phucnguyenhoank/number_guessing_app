@@ -15,18 +15,21 @@ class Match:
             print(f"House's card: {house_card}")
             player_card = self.deck.deal_card()
 
-            guess = input("Is your card greater or less than the House's card? (greater/less): ").strip().lower()
+            guess = input("Is your card greater or less than the House's card? (g/l): ").strip().lower()
             print(f"Your card: {player_card}")
 
             # If Player got right
-            if (guess == "greater" and player_card > house_card) or (guess == "less" and player_card < house_card):
+            if (guess == "g" and player_card > house_card) or (guess == "l" and player_card < house_card):
                 print("Correct guess!")
-                decision = input("Do you want to continue or stop? (continue/stop): ").strip().lower()
+                if self.potential_reward >= 1000:
+                    return self.potential_reward
+                
+                decision = input("Continue to get x2 reward in the next round? (y/stop): ").strip().lower()
                 if decision == "stop":
                     return self.potential_reward
                 else:
                     self.potential_reward *= 2
                     print(f"Reward doubled to {self.potential_reward} for the next round.")
             else:
-                print("Wrong guess or cards are equal. You lose this match.")
+                print("Wrong guess.")
                 return 0
