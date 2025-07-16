@@ -2,7 +2,7 @@ from .card import Card # Assuming Card class is in a 'card' module
 import random
 
 class Deck:
-    def __init__(self, cards, shuffle_on_init=False):
+    def __init__(self, cards, shuffle_on_init=True):
         # Initialize _cards as a list of Card objects
         self._cards = list(cards)
         if shuffle_on_init:
@@ -14,12 +14,12 @@ class Deck:
 
     def deal_card(self):
         """
-        Deals a single card from the top of the deck.
+        Deals a single card from the bottom of the deck.
         Raises IndexError if the deck is empty.
         """
         if not self._cards:
             raise IndexError("Cannot deal card from an empty deck.")
-        return self._cards.pop(0)
+        return self._cards.pop()
 
     def add_card(self, card):
         """
@@ -57,16 +57,29 @@ class Deck:
 
 class DeckFactory:
     """Abstract base class for creating decks."""
-    def create_deck(self):
+    def create_deck(self, shuffle_on_init=True):
         """
         Creates and returns a new deck.
         Must be implemented by subclasses.
         """
         raise NotImplementedError("Subclasses must implement create_deck()")
 
+class EmptyDeckFactory(DeckFactory):
+    """Factory for creating a standard 52-card deck."""
+    def create_deck(self):
+        """
+        Creates a empty deck.
+        Args:
+            shuffle_on_init (bool): If True, shuffles the deck upon creation.
+        Returns:
+            Deck: An empty deck.
+        """
+        cards = []
+        return Deck(cards)
+
 class StandardDeckFactory(DeckFactory):
     """Factory for creating a standard 52-card deck."""
-    def create_deck(self, shuffle_on_init=False):
+    def create_deck(self, shuffle_on_init=True):
         """
         Creates a standard 52-card deck (A-K of Spades, Clubs, Diamonds, Hearts).
         Args:
@@ -84,7 +97,7 @@ class StandardDeckFactory(DeckFactory):
 
 class JokerDeckFactory(DeckFactory):
     """Factory for creating a deck with standard cards plus two Jokers."""
-    def create_deck(self, shuffle_on_init=False):
+    def create_deck(self, shuffle_on_init=True):
         """
         Creates a deck with 52 standard cards and two Jokers (Black and Red).
         Args:

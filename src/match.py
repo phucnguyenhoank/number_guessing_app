@@ -1,4 +1,4 @@
-from .deck import Deck, JokerDeckFactory
+from .deck import JokerDeckFactory
 
 class Match:
     def __init__(self):
@@ -7,9 +7,9 @@ class Match:
 
     def play_match(self):
         while True:
-            if self.deck.cards_left() < 2:
-                print("Not enough cards left in the deck!")
-                return 0
+            if len(self.deck) < 2:
+                print("Not enough cards left in the deck! Auto restart the deck.")
+                self.deck = JokerDeckFactory().create_deck()
 
             house_card = self.deck.deal_card()
             print(f"House's card: {house_card}")
@@ -18,6 +18,7 @@ class Match:
             guess = input("Is your card greater or less than the House's card? (greater/less): ").strip().lower()
             print(f"Your card: {player_card}")
 
+            # If Player got right
             if (guess == "greater" and player_card > house_card) or (guess == "less" and player_card < house_card):
                 print("Correct guess!")
                 decision = input("Do you want to continue or stop? (continue/stop): ").strip().lower()

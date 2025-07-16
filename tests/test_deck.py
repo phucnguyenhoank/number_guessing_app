@@ -1,12 +1,11 @@
 import pytest
-import random
 from src.card import Card
-from src.deck import Deck, StandardDeckFactory, JokerDeckFactory
+from src.deck import StandardDeckFactory, JokerDeckFactory, EmptyDeckFactory
 
 # Helper function to create a simple deck for testing
 @pytest.fixture
 def empty_deck():
-    return Deck([])
+    return EmptyDeckFactory().create_deck()
 
 @pytest.fixture
 def standard_deck():
