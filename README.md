@@ -19,7 +19,7 @@ cd card-guessing-game
 
 ```bash
 conda env create -f environment.yml
-conda activate cardgame
+conda activate num_guess_env
 ```
 
 3. Run the game:
