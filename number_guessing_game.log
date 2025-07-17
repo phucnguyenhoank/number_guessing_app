@@ -1,0 +1,15 @@
+2025-07-17 23:16:40,090 [INFO] Attempting to start a new match.
+2025-07-17 23:16:40,090 [INFO] House card dealt: 7 of Diamond
+2025-07-17 23:16:42,485 [INFO] Player guessed 'g'
+2025-07-17 23:16:42,485 [INFO] House card: 7 of Diamond, Player card: 4 of Spade
+2025-07-17 23:16:43,568 [INFO] Attempting to start a new match.
+2025-07-17 23:16:43,575 [INFO] House card dealt: 3 of Club
+2025-07-17 23:16:45,407 [INFO] Player guessed 'g'
+2025-07-17 23:16:45,407 [INFO] House card: 3 of Club, Player card: 4 of Heart
+2025-07-17 23:16:45,407 [INFO] Guess is correct.
+2025-07-17 23:16:45,407 [INFO] Guess is wrong.
+2025-07-17 23:16:48,524 [INFO] Player stopped match with reward 20
+2025-07-17 23:16:50,581 [INFO] Attempting to start a new match.
+2025-07-17 23:16:50,581 [INFO] House card dealt: K of Heart
+2025-07-17 23:16:52,083 [INFO] Player guessed 'g'
+2025-07-17 23:16:52,083 [INFO] House card: K of Heart, Player card: 8 of Club

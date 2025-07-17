@@ -2,6 +2,20 @@ import tkinter as tk
 from src.game import Game
 from src.match import Match
 
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Or DEBUG for more detailed info
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("number_guessing_game.log"),  # Logs to a file
+        logging.StreamHandler()               # Also prints to console
+    ]
+)
+logger = logging.getLogger(__name__)
+
+
 class GUIApp:
     def __init__(self, root):
         self.root = root
@@ -49,15 +63,19 @@ class GUIApp:
 
     def start_match(self):
         """Start a new match if possible."""
+        logger.info("Attempting to start a new match.")
         if not self.game.can_play_match():
+            logger.warning("Not enough points to play a new match.")
             self.status_label.config(text=f"Not enough points to play (need at least {self.game.lose_threshold})!")
             return
         if not self.game.pay_for_match():
+            logger.error("Payment for match failed unexpectedly.")
             self.status_label.config(text="Error paying for match!")
             return
 
         self.match = Match()
         house_card = self.match.deal_cards()
+        logger.info(f"House card dealt: {house_card}")
         self.update_points()
         self.status_label.config(text="Guess if your card is greater or less.")
         self.card_label.config(text=f"House's Card: {house_card}")
@@ -68,12 +86,16 @@ class GUIApp:
     def make_guess(self, guess):
         """Process the user's guess."""
         player_card = self.match.reveal_player_card()
+        logger.info(f"Player guessed '{guess}'")
+        logger.info(f"House card: {self.match.house_card}, Player card: {player_card}")
         self.card_label.config(text=f"House's Card: {self.match.house_card}\nYour Card: {player_card}")
         if self.match.is_guess_correct(guess):
+            logger.info("Guess is correct.")
             if self.match.get_reward() >= self.match.win_threshold:
                 self.status_label.config(text=f"Correct! Reward reached {self.match.get_reward()}!")
                 self.end_match(self.match.get_reward())
             else:
+                logger.info("Guess is wrong.")
                 self.status_label.config(text="Correct guess! Continue to double reward?")
                 self.guess_frame.pack_forget()
                 self.decision_frame.pack()
@@ -84,6 +106,7 @@ class GUIApp:
     def continue_match(self):
         """Continue the match by doubling the reward."""
         self.match.double_reward()
+        logger.info(f"Reward doubled to {self.match.get_reward()}")
         house_card = self.match.deal_cards()
         self.status_label.config(text=f"Reward doubled to {self.match.get_reward()}. Guess again.")
         self.card_label.config(text=f"House's Card: {house_card}")
@@ -92,6 +115,7 @@ class GUIApp:
 
     def stop_match(self):
         """Stop the match and take the current reward."""
+        logger.info(f"Player stopped match with reward {self.match.get_reward()}")
         self.status_label.config(text=f"Match stopped with reward {self.match.get_reward()}.")
         self.end_match(self.match.get_reward())
 
