@@ -65,6 +65,7 @@ card-guessing-game/
 ├── src/
 │   ├── game.py        # Game logic
 │   ├── match.py       # Match logic and card dealing
+│   ├── deck.py        # Hold and deal with cards
 │   └── card.py        # Card comparison logic
 ├── environment.yml    # Conda environment file
 └── README.md          # Project instructions
