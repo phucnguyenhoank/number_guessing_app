@@ -11,7 +11,7 @@ It is recommended to use **Miniconda** or **Anaconda** to create an isolated env
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/card-guessing-game.git
+git clone https://github.com/phucnguyenhoank/number_guessing_app.git
 cd card-guessing-game
 ````
 
