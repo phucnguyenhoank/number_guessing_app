@@ -8,10 +8,10 @@ LOSE_THRESHOLD = 30
 
 game = Game(STARTING_POINTS, MATCH_COST, WIN_THRESHOLD, LOSE_THRESHOLD)
 
-print(f"START THE GAME WITH {game.get_points()} POINTS")
+print(f"START THE GAME WITH {game.points} POINTS")
 while game.can_play_match():
     game.pay_for_match()
-    print(f"Paid {game.match_cost} points. Current points: {game.get_points()}")
+    print(f"Paid {game.match_cost} points. Current points: {game.points}")
 
     # Start playing a Match
     match = Match()
@@ -40,10 +40,10 @@ while game.can_play_match():
             break
     
     game.add_reward(match.get_reward())
-    print(f"Match reward: {match.get_reward()}. Total points: {game.get_points()}")
+    print(f"Match reward: {match.get_reward()}. Total points: {game.points}")
     if game.check_win():
         print("You win!")
         break
 if not game.can_play_match():
-    print(f"Not enough {game.lose_threshold} points (having {game.get_points()} now) to continue!")
-print(f"Final score: {game.get_points()}")
+    print(f"Not enough {game.lose_threshold} points (having {game.points} now) to continue!")
+print(f"Final score: {game.points}")

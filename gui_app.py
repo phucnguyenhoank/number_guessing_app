@@ -29,7 +29,7 @@ class GUIApp:
         self.match = None
 
         # GUI elements
-        self.points_label = tk.Label(root, text=f"Points: {self.game.get_points()}")
+        self.points_label = tk.Label(root, text=f"Points: {self.game.points}")
         self.points_label.pack()
 
         self.status_label = tk.Label(root, text="Click 'Start Match' to begin!")
@@ -59,11 +59,11 @@ class GUIApp:
 
     def update_points(self):
         """Update the points display."""
-        self.points_label.config(text=f"Points: {self.game.get_points()}")
+        self.points_label.config(text=f"Points: {self.game.points}")
 
     def start_match(self):
         """Start a new match if possible."""
-        logger.info("Attempting to start a new match.")
+        logger.info(f"Attempting to start a new match. Current point is {self.game.points}")
         if not self.game.can_play_match():
             logger.warning("Not enough points to play a new match.")
             self.status_label.config(text=f"Not enough points to play (need at least {self.game.lose_threshold})!")
@@ -95,11 +95,11 @@ class GUIApp:
                 self.status_label.config(text=f"Correct! Reward reached {self.match.get_reward()}!")
                 self.end_match(self.match.get_reward())
             else:
-                logger.info("Guess is wrong.")
                 self.status_label.config(text="Correct guess! Continue to double reward?")
                 self.guess_frame.pack_forget()
                 self.decision_frame.pack()
         else:
+            logger.info("Guess is wrong! Match ended.")
             self.status_label.config(text="Wrong guess! Match ended.")
             self.end_match(0)
 
@@ -108,6 +108,7 @@ class GUIApp:
         self.match.double_reward()
         logger.info(f"Reward doubled to {self.match.get_reward()}")
         house_card = self.match.deal_cards()
+        logger.info(f"House card dealt: {house_card}")
         self.status_label.config(text=f"Reward doubled to {self.match.get_reward()}. Guess again.")
         self.card_label.config(text=f"House's Card: {house_card}")
         self.decision_frame.pack_forget()
@@ -121,16 +122,18 @@ class GUIApp:
 
     def end_match(self, reward):
         """End the match, update points, and check win/lose conditions."""
-        self.game.add_reward(reward)
+        self.game.points += reward
         self.update_points()
         self.guess_frame.pack_forget()
         self.decision_frame.pack_forget()
         self.start_button.pack()
 
         if self.game.check_win():
+            logger.info(f"Player wins the game with {self.game.points} points")
             self.status_label.config(text="Congratulations! You win the game!")
             self.start_button.config(state=tk.DISABLED)
         elif not self.game.can_play_match():
+            logger.info(f"Player doesn't have enough points to continue ({self.game.points} points)")
             self.status_label.config(text="Game over: Not enough points to continue.")
             self.start_button.config(state=tk.DISABLED)
         else:

@@ -1,15 +1,16 @@
-2025-07-17 23:16:40,090 [INFO] Attempting to start a new match.
-2025-07-17 23:16:40,090 [INFO] House card dealt: 7 of Diamond
-2025-07-17 23:16:42,485 [INFO] Player guessed 'g'
-2025-07-17 23:16:42,485 [INFO] House card: 7 of Diamond, Player card: 4 of Spade
-2025-07-17 23:16:43,568 [INFO] Attempting to start a new match.
-2025-07-17 23:16:43,575 [INFO] House card dealt: 3 of Club
-2025-07-17 23:16:45,407 [INFO] Player guessed 'g'
-2025-07-17 23:16:45,407 [INFO] House card: 3 of Club, Player card: 4 of Heart
-2025-07-17 23:16:45,407 [INFO] Guess is correct.
-2025-07-17 23:16:45,407 [INFO] Guess is wrong.
-2025-07-17 23:16:48,524 [INFO] Player stopped match with reward 20
-2025-07-17 23:16:50,581 [INFO] Attempting to start a new match.
-2025-07-17 23:16:50,581 [INFO] House card dealt: K of Heart
-2025-07-17 23:16:52,083 [INFO] Player guessed 'g'
-2025-07-17 23:16:52,083 [INFO] House card: K of Heart, Player card: 8 of Club
+2025-07-18 00:05:43,326 [INFO] Attempting to start a new match. Current point is 60
+2025-07-18 00:05:43,326 [INFO] House card dealt: 5 of Heart
+2025-07-18 00:05:45,057 [INFO] Player guessed 'g'
+2025-07-18 00:05:45,057 [INFO] House card: 5 of Heart, Player card: J of Diamond
+2025-07-18 00:05:45,068 [INFO] Guess is correct.
+2025-07-18 00:05:47,122 [INFO] Reward doubled to 40
+2025-07-18 00:05:47,122 [INFO] House card dealt: 8 of Heart
+2025-07-18 00:05:48,702 [INFO] Player guessed 'l'
+2025-07-18 00:05:48,702 [INFO] House card: 8 of Heart, Player card: Black Joker
+2025-07-18 00:05:48,702 [INFO] Guess is wrong! Match ended.
+2025-07-18 00:05:50,626 [INFO] Attempting to start a new match. Current point is 35
+2025-07-18 00:05:50,626 [INFO] House card dealt: 6 of Heart
+2025-07-18 00:05:52,260 [INFO] Player guessed 'g'
+2025-07-18 00:05:52,260 [INFO] House card: 6 of Heart, Player card: 4 of Spade
+2025-07-18 00:05:52,260 [INFO] Guess is wrong! Match ended.
+2025-07-18 00:05:52,260 [INFO] Player doesn't have enough points to continue (10 points)
