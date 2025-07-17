@@ -1,30 +1,31 @@
 from .match import Match
 
 class Game:
-    def __init__(self):
-        self.points = 60
+    def __init__(self, starting_points=60, match_cost=25, win_threshold=1000, lose_threshold=30):
+        self.points = starting_points
+        self.match_cost = match_cost
+        self.win_threshold = win_threshold
+        self.lose_threshold = lose_threshold
 
-    def play_game(self):
-        while True:
-            print(f"\nCurrent points: {self.points}")
-            if self.points < 25:
-                print("Not enough points to play a match.")
-                if self.points < 30:
-                    print("You lose the game!")
-                else:
-                    print("Game ended without win or loss.")
-                break
+    def can_play_match(self):
+        """Check if there are enough points to play a match."""
+        return self.points >= self.lose_threshold
 
-            self.points -= 25
-            print("You paid 25 points to start a match.")
-            match = Match()
-            reward = match.play_match()
-            self.points += reward
-            print(f"Match ended. Reward: {reward}. Total points: {self.points}")
+    def pay_for_match(self):
+        """Deduct the match cost from points if possible."""
+        if self.points >= self.match_cost:
+            self.points -= self.match_cost
+            return True
+        return False
 
-            if self.points >= 1000:
-                print("Congratulations! You win the game!")
-                break
-            elif self.points < 30:
-                print("Sorry, you need more money!")
-                break
+    def add_reward(self, reward):
+        """Add the match reward to total points."""
+        self.points += reward
+
+    def check_win(self):
+        """Check if the win threshold is reached."""
+        return self.points >= self.win_threshold
+
+    def get_points(self):
+        """Return the current points."""
+        return self.points

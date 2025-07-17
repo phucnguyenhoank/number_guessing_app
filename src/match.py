@@ -1,35 +1,51 @@
 from .deck import JokerDeckFactory
+from .card import Card
 
 class Match:
-    def __init__(self):
+    def __init__(self, initial_reward=20, win_threshold=1000):
         self.deck = JokerDeckFactory().create_deck()
-        self.potential_reward = 20
+        self.initial_reward = initial_reward
+        self.potential_reward = initial_reward
+        self.win_threshold = win_threshold
+        self.house_card = None
+        self.player_card = None
 
-    def play_match(self):
-        while True:
-            if len(self.deck) < 2:
-                print("Not enough cards left in the deck! Auto restart the deck.")
-                self.deck = JokerDeckFactory().create_deck()
+    def reset_deck_if_needed(self):
+        """Reset the deck if fewer than 2 cards remain."""
+        if len(self.deck) < 2:
+            self.deck = JokerDeckFactory().create_deck()
 
-            house_card = self.deck.deal_card()
-            print(f"House's card: {house_card}")
-            player_card = self.deck.deal_card()
+    def deal_cards(self):
+        """Deal house and player cards, return the house card."""
+        self.reset_deck_if_needed()
+        self.house_card = self.deck.deal_card()
+        self.player_card = self.deck.deal_card()
+        return self.house_card
 
-            guess = input("Is your card greater or less than the House's card? (g/l): ").strip().lower()
-            print(f"Your card: {player_card}")
+    def reveal_player_card(self):
+        """Return the player's card."""
+        return self.player_card
 
-            # If Player got right
-            if (guess == "g" and player_card > house_card) or (guess == "l" and player_card < house_card):
-                print("Correct guess!")
-                if self.potential_reward >= 1000:
-                    return self.potential_reward
-                
-                decision = input("Continue to get x2 reward in the next round? (y/stop): ").strip().lower()
-                if decision == "stop":
-                    return self.potential_reward
-                else:
-                    self.potential_reward *= 2
-                    print(f"Reward doubled to {self.potential_reward} for the next round.")
-            else:
-                print("Wrong guess.")
-                return 0
+    def is_guess_correct(self, guess):
+        """Check if the guess ('g' or 'l') is correct."""
+        if guess == "g":
+            return self.player_card > self.house_card
+        elif guess == "l":
+            return self.player_card < self.house_card
+        return False
+
+    def double_reward(self):
+        """Double the potential reward for the next round."""
+        self.potential_reward *= 2
+    
+    def remove_reward(self):
+        """Set the potential reward to zero."""
+        self.potential_reward = 0
+
+    def get_reward(self):
+        """Return the current potential reward."""
+        return self.potential_reward
+
+    def reset_reward(self):
+        """Reset the potential reward to the initial value."""
+        self.potential_reward = self.initial_reward
